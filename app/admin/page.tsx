@@ -52,26 +52,18 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   return (
     <main className="min-h-screen bg-[#f6f3ee] px-5 py-10 text-zinc-950">
       <div className="mx-auto max-w-6xl">
-        <div className="flex flex-col justify-between gap-4 border-b border-zinc-200 pb-6 md:flex-row md:items-end">
-          <div>
-            <Link href="/" className="text-sm font-semibold text-red-800">
-              На главную
-            </Link>
-            <h1 className="mt-5 text-4xl font-bold">Админ-панель</h1>
-            <p className="mt-3 text-zinc-700">
-              Просмотр заявок, фильтр по статусу и обработка обращений.
-            </p>
-          </div>
-          <div className="rounded-md bg-white px-4 py-3 text-sm font-semibold text-zinc-800">
-            Всего на экране: {adminRequests.length}
-          </div>
+        <div className="border-b border-zinc-200 pb-6">
+          <Link href="/" className="text-sm font-semibold text-red-800">
+            На главную
+          </Link>
+          <h1 className="mt-5 text-4xl font-bold">Админ-панель</h1>
+          <p className="mt-3 max-w-2xl text-zinc-700">
+            Просмотр заявок, фильтр по статусу и обработка обращений.
+          </p>
         </div>
 
         <div className="mt-6">
-          <AdminRequests
-            requests={adminRequests}
-            activeStatus={activeStatus}
-          />
+          <AdminRequests requests={adminRequests} activeStatus={activeStatus} />
         </div>
       </div>
     </main>
