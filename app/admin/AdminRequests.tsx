@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 export type AdminRequest = {
   id: number;
@@ -85,6 +85,32 @@ export function AdminRequests({
   const [pendingId, setPendingId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const refreshRequests = useCallback(async () => {
+    const params = activeStatus
+      ? `?status=${encodeURIComponent(activeStatus)}`
+      : "";
+    const response = await fetch(`/api/requests${params}`, {
+      cache: "no-store",
+    });
+    const payload = (await response.json().catch(() => null)) as {
+      requests?: AdminRequest[];
+    } | null;
+
+    if (!response.ok || !Array.isArray(payload?.requests)) {
+      return;
+    }
+
+    setRequests(payload.requests);
+  }, [activeStatus]);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      void refreshRequests();
+    }, 7000);
+
+    return () => window.clearInterval(intervalId);
+  }, [refreshRequests]);
+
   const currentFilterLabel = useMemo(() => {
     if (!activeStatus) {
       return "Все заявки";
@@ -94,44 +120,44 @@ export function AdminRequests({
   }, [activeStatus]);
 
   async function updateStatus(requestId: number, status: string) {
-    setPendingId(requestId);
-    setError(null);
+    try {
+      setPendingId(requestId);
+      setError(null);
 
-    const response = await fetch(`/api/requests/${requestId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ status }),
-    });
+      const response = await fetch(`/api/requests/${requestId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status }),
+      });
 
-    const payload = (await response.json().catch(() => null)) as {
-      error?: string;
-      request?: AdminRequest;
-    } | null;
+      const payload = (await response.json().catch(() => null)) as {
+        error?: string;
+        request?: AdminRequest;
+      } | null;
 
-    setPendingId(null);
-
-    if (!response.ok || !payload?.request) {
-      setError(payload?.error || "Не удалось обновить статус");
-      return;
-    }
-
-    setRequests((current) => {
-      if (activeStatus && payload.request!.status !== activeStatus) {
-        return current.filter((item) => item.id !== requestId);
+      if (!response.ok || !payload?.request) {
+        setError(payload?.error || "Не удалось обновить статус");
+        return;
       }
 
-      return current.map((item) =>
-        item.id === requestId
-          ? {
-              ...item,
-              status: payload.request!.status,
-              updatedAt: payload.request!.updatedAt,
-            }
-          : item,
-      );
-    });
+      setRequests((current) => {
+        if (activeStatus && payload.request!.status !== activeStatus) {
+          return current.filter((item) => item.id !== requestId);
+        }
+
+        return current.map((item) =>
+          item.id === requestId ? payload.request! : item,
+        );
+      });
+
+      await refreshRequests();
+    } catch {
+      setError("Не удалось обновить статус");
+    } finally {
+      setPendingId(null);
+    }
   }
 
   return (

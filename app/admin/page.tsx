@@ -63,7 +63,11 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         </div>
 
         <div className="mt-6">
-          <AdminRequests requests={adminRequests} activeStatus={activeStatus} />
+          <AdminRequests
+            key={activeStatus || "all"}
+            requests={adminRequests}
+            activeStatus={activeStatus}
+          />
         </div>
       </div>
     </main>
