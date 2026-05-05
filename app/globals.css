@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fafaf9;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.section-kicker {
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.animate-fade-up {
+  animation: fade-up 700ms ease-out both;
+}
+
+.animate-fade-up-delay {
+  animation: fade-up 800ms ease-out 180ms both;
+}
+
+.animate-on-scroll {
+  animation: fade-up both;
+  animation-timeline: view();
+  animation-range: entry 0% cover 32%;
+}
+
+.map-grid {
+  background:
+    linear-gradient(90deg, rgba(39, 39, 42, 0.12) 1px, transparent 1px),
+    linear-gradient(rgba(39, 39, 42, 0.12) 1px, transparent 1px),
+    radial-gradient(circle at 62% 45%, rgba(220, 38, 38, 0.95) 0 9px, transparent 10px),
+    linear-gradient(135deg, #f4f4f5, #e7e5e4);
+  background-size: 48px 48px, 48px 48px, 100% 100%, 100% 100%;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

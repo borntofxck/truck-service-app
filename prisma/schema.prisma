@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Service {
+  id          Int       @id @default(autoincrement())
+  title       String    @db.VarChar(150)
+  description String?
+  priceFrom   Decimal?  @map("price_from") @db.Decimal(10, 2)
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  requests    Request[]
+
+  @@map("services")
+}
+
+model Request {
+  id                 Int            @id @default(autoincrement())
+  clientName         String         @map("client_name") @db.VarChar(100)
+  phone              String         @db.VarChar(30)
+  truckModel         String         @map("truck_model") @db.VarChar(100)
+  serviceId          Int            @map("service_id")
+  problemDescription String         @map("problem_description")
+  status             String         @default("new") @db.VarChar(30)
+  createdAt          DateTime       @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt          DateTime       @updatedAt @map("updated_at") @db.Timestamp(6)
+  service            Service        @relation(fields: [serviceId], references: [id], onUpdate: NoAction)
+  notifications      Notification[]
+
+  @@map("requests")
+}
+
+model Review {
+  id          Int      @id @default(autoincrement())
+  clientName  String   @map("client_name") @db.VarChar(100)
+  rating      Int
+  text        String
+  isPublished Boolean  @default(false) @map("is_published")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@map("reviews")
+}
+
+model Notification {
+  id           Int       @id @default(autoincrement())
+  requestId    Int       @map("request_id")
+  channel      String    @default("max") @db.VarChar(50)
+  status       String    @default("pending") @db.VarChar(30)
+  sentAt       DateTime? @map("sent_at") @db.Timestamp(6)
+  errorMessage String?   @map("error_message")
+  request      Request   @relation(fields: [requestId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("notifications")
+}
+
+model Admin {
+  id           Int    @id @default(autoincrement())
+  login        String @unique @db.VarChar(100)
+  passwordHash String @map("password_hash") @db.VarChar(255)
+  role         String @default("manager") @db.VarChar(30)
+
+  @@map("admins")
+}
