@@ -205,6 +205,12 @@ if (!chatUrl) {
   );
 }
 
+try {
+  await openChat(page);
+} catch (error) {
+  console.warn("Не удалось открыть MAX при старте worker:", error);
+}
+
 while (true) {
   const notification = await claimNotification();
 
