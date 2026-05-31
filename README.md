@@ -9,7 +9,7 @@
 - API `POST /api/requests` для создания заявки.
 - PostgreSQL + Prisma.
 - Админ-панель `/admin` для просмотра заявок и смены статуса.
-- Basic Auth для админки и приватных API.
+- Вход администратора через базу данных, хэш пароля и cookie-сессию.
 - MAX web-worker на Playwright для отправки уведомлений в чат.
 - `robots.txt`, `sitemap.xml`, OpenGraph/Twitter metadata, страница `/privacy`.
 
@@ -51,6 +51,7 @@ cp .env.example .env
 DATABASE_URL="postgresql://postgres:password@localhost:5432/truck_service_db"
 ADMIN_LOGIN="admin"
 ADMIN_PASSWORD="replace-with-strong-password"
+ADMIN_SESSION_SECRET="replace-with-random-session-secret"
 
 MAX_WEB_URL="https://web.max.ru/"
 MAX_WEB_CHAT_URL="https://web.max.ru/445055049"
@@ -74,6 +75,16 @@ npx prisma db push
 ```bash
 npx prisma generate
 ```
+
+## Админка
+
+Админ-панель открывается по адресу:
+
+```text
+http://localhost:3000/admin
+```
+
+Если в таблице `admins` нет пользователей, приложение предложит создать первого администратора на странице `/admin/setup`. Дальше вход выполняется через `/admin/login`, пароль хранится в базе в виде хэша.
 
 ## MAX worker
 

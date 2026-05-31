@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { requireAdminApi } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -12,6 +13,12 @@ type RouteParams = {
 };
 
 export async function PATCH(request: Request, { params }: RouteParams) {
+  const unauthorized = await requireAdminApi();
+
+  if (unauthorized) {
+    return unauthorized;
+  }
+
   const { id } = await params;
   const requestId = Number(id);
 

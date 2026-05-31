@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { requireAdminApi } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -38,6 +39,12 @@ function readServiceId(payload: RequestPayload) {
 }
 
 export async function GET(request: NextRequest) {
+  const unauthorized = await requireAdminApi();
+
+  if (unauthorized) {
+    return unauthorized;
+  }
+
   const status = request.nextUrl.searchParams.get("status");
   const where =
     status && REQUEST_STATUSES.includes(status) ? { status } : undefined;

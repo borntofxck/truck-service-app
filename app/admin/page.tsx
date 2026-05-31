@@ -1,5 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { AdminLogoutButton } from "@/app/admin/AdminLogoutButton";
 import { AdminRequests, type AdminRequest } from "@/app/admin/AdminRequests";
+import { getAdminBootstrapState, getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +16,19 @@ type AdminPageProps = {
 };
 
 export default async function AdminPage({ searchParams }: AdminPageProps) {
+  const [{ hasAdmins }, session] = await Promise.all([
+    getAdminBootstrapState(),
+    getAdminSession(),
+  ]);
+
+  if (!hasAdmins) {
+    redirect("/admin/setup");
+  }
+
+  if (!session) {
+    redirect("/admin/login");
+  }
+
   const { status } = await searchParams;
   const activeStatus =
     status && allowedStatuses.includes(status) ? status : undefined;
@@ -53,13 +69,21 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     <main className="min-h-screen bg-[#f6f3ee] px-5 py-10 text-zinc-950">
       <div className="mx-auto max-w-6xl">
         <div className="border-b border-zinc-200 pb-6">
-          <Link href="/" className="text-sm font-semibold text-red-800">
-            На главную
-          </Link>
-          <h1 className="mt-5 text-4xl font-bold">Админ-панель</h1>
-          <p className="mt-3 max-w-2xl text-zinc-700">
-            Просмотр заявок, фильтр по статусу и обработка обращений.
-          </p>
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <Link href="/" className="text-sm font-semibold text-red-800">
+                На главную
+              </Link>
+              <h1 className="mt-5 text-4xl font-bold">Админ-панель</h1>
+              <p className="mt-3 max-w-2xl text-zinc-700">
+                Просмотр заявок, фильтр по статусу и обработка обращений.
+              </p>
+              <p className="mt-2 text-sm font-semibold text-zinc-500">
+                Вход выполнен: {session.login}
+              </p>
+            </div>
+            <AdminLogoutButton />
+          </div>
         </div>
 
         <div className="mt-6">
